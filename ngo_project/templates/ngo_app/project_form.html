@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Project - NGO Better Tomorrow{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <a href="{% url 'ngo_app:project-list' %}" class="btn btn-outline-secondary btn-sm mb-3">
+                <i class="bi bi-arrow-left"></i> Back to Projects
+            </a>
+            <h1><i class="bi bi-plus-circle"></i> {% if form.instance.pk %}Edit{% else %}Create{% endif %} Project</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> {% if form.instance.pk %}Update{% else %}Create{% endif %} Project
+                            </button>
+                            <a href="{% url 'ngo_app:project-list' %}" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> Need Help?
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Project Title</dt>
+                        <dd class="col-sm-8">Give your project a clear, descriptive name.</dd>
+                        
+                        <dt class="col-sm-4">Slug</dt>
+                        <dd class="col-sm-8">URL-friendly version of the title (auto-generated from title).</dd>
+                        
+                        <dt class="col-sm-4">Category</dt>
+                        <dd class="col-sm-8">Select the primary focus area of your project.</dd>
+                        
+                        <dt class="col-sm-4">Budget</dt>
+                        <dd class="col-sm-8">Total estimated budget for the project.</dd>
+                        
+                        <dt class="col-sm-4">Target Beneficiaries</dt>
+                        <dd class="col-sm-8">Number of people you aim to help/impact.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

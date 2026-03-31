@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Project Details - NGO Better Tomorrow{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <a href="{% url 'ngo_app:project-list' %}" class="btn btn-outline-secondary btn-sm mb-3">
+                <i class="bi bi-arrow-left"></i> Back to Projects
+            </a>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if user.is_authenticated %}
+            <a href="{% url 'ngo_app:project-update' project.slug %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a href="{% url 'ngo_app:project-delete' project.slug %}" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash"></i> Delete
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            {% if project.image %}
+            <img src="{{ project.image.url }}" alt="{{ project.title }}" class="img-fluid rounded mb-4" style="height: 400px; object-fit: cover; width: 100%;">
+            {% endif %}
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-primary">{{ project.get_category_display }}</span>
+                        <span class="badge bg-{{ project.status|lower|default:"secondary" }}">{{ project.get_status_display }}</span>
+                    </div>
+                    
+                    <h1 class="mb-2">{{ project.title }}</h1>
+                    <p class="text-muted">
+                        <i class="bi bi-geo-alt"></i> {{ project.location }} | 
+                        <i class="bi bi-building"></i> {{ project.organization.name }}
+                    </p>
+
+                    <hr>
+
+                    <h5><i class="bi bi-bookmark"></i> Description</h5>
+                    <p>{{ project.description }}</p>
+
+                    <h5 class="mt-4"><i class="bi bi-target"></i> Objective</h5>
+                    <p>{{ project.objective }}</p>
+                </div>
+            </div>
+
+            <!-- Project Metrics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-graph-up"></i> Project Metrics
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Budget Allocated</h6>
+                            <h3 class="text-primary">${{ project.budget|floatformat:2 }}</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Target Beneficiaries</h6>
+                            <h3 class="text-success">{{ project.target_beneficiaries }}</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Duration</h6>
+                            <h3 class="text-info">
+                                {% if project.end_date %}
+                                    {{ project.start_date|date:"M Y" }} - {{ project.end_date|date:"M Y" }}
+                                {% else %}
+                                    Ongoing
+                                {% endif %}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Report -->
+            {% if impact %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-award"></i> Impact Report
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Actual Beneficiaries</h6>
+                            <h3 class="text-success">{{ impact.actual_beneficiaries }}</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Families Impacted</h6>
+                            <h3 class="text-success">{{ impact.families_impacted }}</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Completion Rate</h6>
+                            <h3 class="text-success">{{ impact.completion_percentage }}%</h3>
+                        </div>
+                    </div>
+
+                    <h6>Progress</h6>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ impact.completion_percentage }}%"></div>
+                    </div>
+
+                    <h6>Key Achievements</h6>
+                    <p>{{ impact.key_achievements }}</p>
+
+                    {% if impact.challenges_faced %}
+                    <h6>Challenges Faced</h6>
+                    <p>{{ impact.challenges_faced }}</p>
+                    {% endif %}
+
+                    {% if impact.lessons_learned %}
+                    <h6>Lessons Learned</h6>
+                    <p>{{ impact.lessons_learned }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Project Info Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> Project Information
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <strong>Organization:</strong><br>
+                            <a href="{% url 'ngo_app:organization-detail' project.organization.slug %}">
+                                {{ project.organization.name }}
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <strong>Lead Member:</strong><br>
+                            {% if project.lead_member %}
+                                <a href="{% url 'ngo_app:member-detail' project.lead_member.pk %}">
+                                    {{ project.lead_member.full_name }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </li>
+                        <li class="mb-3">
+                            <strong>Start Date:</strong><br>
+                            {{ project.start_date|date:"F d, Y" }}
+                        </li>
+                        <li class="mb-3">
+                            <strong>End Date:</strong><br>
+                            {% if project.end_date %}
+                                {{ project.end_date|date:"F d, Y" }}
+                            {% else %}
+                                <span class="text-muted">Ongoing</span>
+                            {% endif %}
+                        </li>
+                        <li class="mb-3">
+                            <strong>Location:</strong><br>
+                            {{ project.location }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Donations Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-suit-heart"></i> Donations
+                </div>
+                <div class="card-body">
+                    <h6>Total Donations</h6>
+                    <h3 class="text-warning mb-3">${{ project_donations|floatformat:2 }}</h3>
+                    <p class="text-muted">{{ donation_count }} donation(s) recorded</p>
+                    <a href="{% url 'ngo_app:donation-create' %}" class="btn btn-warning btn-sm w-100">
+                        Contribute Now
+                    </a>
+                </div>
+            </div>
+
+            <!-- Share Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-share"></i> Share
+                </div>
+                <div class="card-body">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="shareOnSocial('facebook')">
+                            <i class="bi bi-facebook"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="shareOnSocial('twitter')">
+                            <i class="bi bi-twitter"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="shareOnSocial('email')">
+                            <i class="bi bi-envelope"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function shareOnSocial(platform) {
+    const url = window.location.href;
+    const title = "{{ project.title }}";
+    
+    switch(platform) {
+        case 'facebook':
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+            break;
+        case 'twitter':
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank');
+            break;
+        case 'email':
+            window.location.href = `mailto:?subject=${title}&body=${url}`;
+            break;
+    }
+}
+</script>
+{% endblock %}

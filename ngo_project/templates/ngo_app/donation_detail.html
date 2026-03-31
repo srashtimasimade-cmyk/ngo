@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Donation Details - NGO Better Tomorrow{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <a href="{% url 'ngo_app:donation-list' %}" class="btn btn-outline-secondary btn-sm mb-3">
+                <i class="bi bi-arrow-left"></i> Back to Donations
+            </a>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if user.is_authenticated %}
+            <a href="{% url 'ngo_app:donation-update' donation.pk %}" class="btn btn-warning btn-sm">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="mb-3">Donation from {{ donation.donor_name }}</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Donation Type</h6>
+                            <p class="lead">
+                                <span class="badge bg-info">{{ donation.get_donation_type_display }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Status</h6>
+                            <p class="lead">
+                                {% if donation.status == 'received' %}
+                                    <span class="badge bg-success">Received</span>
+                                {% elif donation.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if donation.donation_type == 'monetary' %}
+                    <div class="alert alert-info mb-4">
+                        <h4 class="mb-0">
+                            <strong>${{ donation.amount }}</strong> {{ donation.currency }}
+                        </h4>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <h5><i class="bi bi-person"></i> Donor Information</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><strong>Name:</strong> {{ donation.donor_name }}</li>
+                        {% if donation.donor_email %}
+                        <li class="mb-2"><strong>Email:</strong> <a href="mailto:{{ donation.donor_email }}">{{ donation.donor_email }}</a></li>
+                        {% endif %}
+                        {% if donation.donor_phone %}
+                        <li class="mb-2"><strong>Phone:</strong> <a href="tel:{{ donation.donor_phone }}">{{ donation.donor_phone }}</a></li>
+                        {% endif %}
+                    </ul>
+
+                    <h5 class="mt-4"><i class="bi bi-briefcase"></i> Donation Details</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><strong>Type:</strong> {{ donation.get_donation_type_display }}</li>
+                        <li class="mb-2"><strong>Organization:</strong> <a href="{% url 'ngo_app:organization-detail' donation.organization.slug %}">{{ donation.organization.name }}</a></li>
+                        {% if donation.project %}
+                        <li class="mb-2"><strong>Project:</strong> <a href="{% url 'ngo_app:project-detail' donation.project.slug %}">{{ donation.project.title }}</a></li>
+                        {% endif %}
+                        <li class="mb-2"><strong>Date:</strong> {{ donation.donation_date|date:"F d, Y" }}</li>
+                    </ul>
+
+                    {% if donation.donation_type != 'monetary' %}
+                    <h5 class="mt-4"><i class="bi bi-file-text"></i> Description</h5>
+                    <p>{{ donation.description }}</p>
+                    {% endif %}
+
+                    {% if donation.notes %}
+                    <h5 class="mt-4"><i class="bi bi-sticky"></i> Notes</h5>
+                    <p>{{ donation.notes }}</p>
+                    {% endif %}
+
+                    <div class="mt-4 pt-3 border-top">
+                        <h6 class="text-muted">Receipt</h6>
+                        {% if donation.receipt_issued %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Receipt Issued</span>
+                        {% else %}
+                            <span class="badge bg-secondary"><i class="bi bi-x-circle"></i> No Receipt</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> Information
+                </div>
+                <div class="card-body">
+                    <dl class="row small">
+                        <dt class="col-sm-5">Recorded:</dt>
+                        <dd class="col-sm-7">{{ donation.created_at|date:"M d, Y" }}</dd>
+                        
+                        <dt class="col-sm-5">Updated:</dt>
+                        <dd class="col-sm-7">{{ donation.updated_at|date:"M d, Y" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

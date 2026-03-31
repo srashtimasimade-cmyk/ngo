@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ organization.name }} - NGO Better Tomorrow{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <a href="{% url 'ngo_app:organization-list' %}" class="btn btn-outline-secondary btn-sm mb-3">
+                <i class="bi bi-arrow-left"></i> Back to Organizations
+            </a>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if user.is_authenticated %}
+            <a href="{% url 'ngo_app:organization-update' organization.slug %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            {% if organization.logo %}
+                            <img src="{{ organization.logo.url }}" alt="{{ organization.name }}" style="max-height: 80px; margin-bottom: 10px;">
+                            {% endif %}
+                            <h1>{{ organization.name }}</h1>
+                            <p class="text-muted">
+                                <i class="bi bi-geo-alt"></i> {{ organization.address }}, {{ organization.city }}, {{ organization.country }}
+                            </p>
+                        </div>
+                        <span class="badge bg-success">{{ organization.get_status_display }}</span>
+                    </div>
+
+                    <hr>
+
+                    <h5><i class="bi bi-bookmark"></i> Description</h5>
+                    <p>{{ organization.description }}</p>
+
+                    <h5><i class="bi bi-target"></i> Mission</h5>
+                    <p>{{ organization.mission }}</p>
+
+                    <h5><i class="bi bi-star"></i> Vision</h5>
+                    <p>{{ organization.vision }}</p>
+
+                    <hr>
+
+                    <h5><i class="bi bi-info-circle"></i> Contact Information</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><strong>Email:</strong> <a href="mailto:{{ organization.email }}">{{ organization.email }}</a></li>
+                        <li class="mb-2"><strong>Phone:</strong> <a href="tel:{{ organization.phone }}">{{ organization.phone }}</a></li>
+                        {% if organization.website %}
+                        <li class="mb-2"><strong>Website:</strong> <a href="{{ organization.website }}" target="_blank">{{ organization.website }}</a></li>
+                        {% endif %}
+                    </ul>
+
+                    <h5 class="mt-4"><i class="bi bi-building"></i> Organization Details</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><strong>Registration Number:</strong> {{ organization.registration_number }}</li>
+                        <li class="mb-2"><strong>Established:</strong> {{ organization.established_date|date:"F d, Y" }}</li>
+                        <li class="mb-2"><strong>Year of Operation:</strong> {{ organization.established_date.year }} - Present</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-graph-up"></i> Statistics
+                </div>
+                <div class="card-body">
+                    <div class="stat-card border-0">
+                        <div class="stat-number text-primary">{{ projects_count }}</div>
+                        <div class="stat-label"><i class="bi bi-briefcase"></i> Active Projects</div>
+                    </div>
+                    <div class="stat-card border-0 mt-3">
+                        <div class="stat-number text-success">{{ members_count }}</div>
+                        <div class="stat-label"><i class="bi bi-people"></i> Team Members</div>
+                    </div>
+                    <div class="stat-card border-0 mt-3">
+                        <div class="stat-number text-warning">${{ total_donations|floatformat:0 }}</div>
+                        <div class="stat-label"><i class="bi bi-suit-heart"></i> Total Donations</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Projects -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-briefcase"></i> Recent Projects
+                </div>
+                <div class="card-body">
+                    {% if recent_projects %}
+                    <ul class="list-unstyled">
+                        {% for project in recent_projects %}
+                        <li class="mb-2">
+                            <a href="{% url 'ngo_app:project-detail' project.slug %}" class="text-decoration-none">
+                                {{ project.title }}
+                            </a>
+                            <br>
+                            <small class="text-muted">{{ project.get_status_display }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No projects yet</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Team Members -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-people"></i> Team Leaders
+                </div>
+                <div class="card-body">
+                    {% if team_members %}
+                    <ul class="list-unstyled">
+                        {% for member in team_members %}
+                        <li class="mb-3">
+                            <div class="d-flex align-items-center">
+                                {% if member.profile_picture %}
+                                <img src="{{ member.profile_picture.url }}" alt="{{ member.full_name }}" 
+                                     style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover;">
+                                {% else %}
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #e9ecef; 
+                                     display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <strong>{{ member.full_name }}</strong><br>
+                                    <small class="text-muted">{{ member.get_role_display }}</small>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No members added yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
